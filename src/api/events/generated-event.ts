@@ -1,11 +1,9 @@
-import {YC} from "../yc";
-import {execute} from "../db";
-import {EVENT_STATUS} from "../models/events";
+import {execute} from "../../db";
+import {EVENT_STATUS} from "../../models/events";
 import {v4 as uuid} from "uuid"
-import {Result} from "../models/result";
+import {Result} from "../../models/result";
 
-export const generatedEvent = async (event: YC.CloudFunctionsHttpEvent,
-                                     context: YC.CloudFunctionsHttpContext): Promise<Result> => {
+export const generatedEvent = async (): Promise<Result> => {
     let result: Result
 
     const uuidUser = uuid()
@@ -15,7 +13,7 @@ export const generatedEvent = async (event: YC.CloudFunctionsHttpEvent,
 
     if (result.status === 200 ) {
         const uuidEvent = uuid()
-        const evented_at = `Date('2022-08-31')`
+        const evented_at = `CurrentUtcDatetime()`
         const isPublic = true
         const reason = `Повод не нужен`
         const status: EVENT_STATUS = `active`
@@ -27,12 +25,10 @@ export const generatedEvent = async (event: YC.CloudFunctionsHttpEvent,
         result = await execute(queryCreateEvent)
         result = {
             ...result,
-            message: 'Event successfully prepared',
             data: {
-                eventId: uuidEvent
+                id: uuidEvent
             }
         }
     }
-
     return result
 }

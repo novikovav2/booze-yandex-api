@@ -31,7 +31,6 @@ export async function execute(query:string): Promise<Result> {
         })
         result = {
             status: 200,
-            message: 'OK',
             data: parse(data)
         }
         await driver.destroy()
@@ -39,7 +38,6 @@ export async function execute(query:string): Promise<Result> {
         logger.error(e)
         result = {
             status: 400,
-            message: 'Error occurred',
             data: e
         }
     }
@@ -48,7 +46,7 @@ export async function execute(query:string): Promise<Result> {
 
 const parse = (data:  Ydb.Table.ExecuteQueryResult) => {
     let result: any[] = []
-    if (!data.resultSets[0].rows) {
+    if (!data.resultSets[0] || !data.resultSets[0].rows) {
         result = []
     } else {
         data.resultSets[0].rows.forEach((row) => {
@@ -60,6 +58,5 @@ const parse = (data:  Ydb.Table.ExecuteQueryResult) => {
             result.push(rowData)
         })
     }
-
     return result
 }
