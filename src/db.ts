@@ -1,4 +1,4 @@
-import {Driver, getLogger, IAuthService, MetadataAuthService} from "ydb-sdk";
+import {Driver, getLogger, IAuthService, MetadataAuthService, Ydb} from "ydb-sdk";
 import {Result} from "./models/result";
 
 export const logger = getLogger()
@@ -32,7 +32,7 @@ export async function execute(query:string): Promise<Result> {
         result = {
             status: 200,
             message: 'OK',
-            data: data
+            data: parse(data)
         }
         await driver.destroy()
     } catch (e) {
@@ -43,5 +43,23 @@ export async function execute(query:string): Promise<Result> {
             data: e
         }
     }
+    return result
+}
+
+const parse = (data:  Ydb.Table.ExecuteQueryResult) => {
+    let result: any[] = []
+    if (!data.resultSets[0].rows) {
+        result = []
+    } else {
+        data.resultSets[0].rows.forEach((row) => {
+            let rowData = {}
+            row.items.forEach((item, idx) => {
+                // 2 - определено опытным путем
+                rowData[data.resultSets[0].columns[idx].name] = Object.values(item)[2]
+            })
+            result.push(rowData)
+        })
+    }
+
     return result
 }
