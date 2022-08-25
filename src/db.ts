@@ -1,5 +1,6 @@
 import {Driver, getLogger, IAuthService, MetadataAuthService, Ydb} from "ydb-sdk";
 import {Result} from "./models/result";
+import {BAD_REQUEST, SUCCESS} from "./consts";
 
 export const logger = getLogger()
 export let driver: Driver
@@ -30,14 +31,14 @@ export async function execute(query:string): Promise<Result> {
             return await session.executeQuery(query)
         })
         result = {
-            status: 200,
+            status: SUCCESS,
             data: parse(data)
         }
         await driver.destroy()
     } catch (e) {
         logger.error(e)
         result = {
-            status: 400,
+            status: BAD_REQUEST,
             data: e
         }
     }

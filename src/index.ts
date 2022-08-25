@@ -3,6 +3,9 @@ import {generatedEvent} from "./api/events/generated-event";
 import {Result} from "./models/result";
 import {getEvent} from "./api/events/getEvent";
 import {getEvents} from "./api/events/getEvents";
+import {addBot} from "./api/members/addBot";
+import {logger} from "./db";
+import {getMembers} from "./api/members/getMembers";
 
 // context: YC.CloudFunctionsHttpContext
 export async function handler(event: YC.CloudFunctionsHttpEvent) {
@@ -19,6 +22,13 @@ export async function handler(event: YC.CloudFunctionsHttpEvent) {
             break;
         case "get-events":
             result = await getEvents(event)
+            break;
+        case "add-bot-member":
+            result = await addBot(event, logger)
+            break
+        case "get-members":
+            result = await getMembers(event)
+            break
     }
 
     return {
