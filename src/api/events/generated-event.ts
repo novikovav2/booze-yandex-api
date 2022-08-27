@@ -2,6 +2,7 @@ import {execute} from "../../db";
 import {EVENT_STATUS} from "../../models/events";
 import {v4 as uuid} from "uuid"
 import {Result} from "../../models/result";
+import {SUCCESS} from "../../consts";
 
 export const generatedEvent = async (): Promise<Result> => {
     let result: Result
@@ -11,7 +12,7 @@ export const generatedEvent = async (): Promise<Result> => {
                             VALUES ('${uuidUser}', 'bot')`
     result = await execute(queryCreateUser)
 
-    if (result.status === 200 ) {
+    if (result.status === SUCCESS ) {
         const uuidEvent = uuid()
         const evented_at = `CurrentUtcDatetime()`
         const isPublic = true
