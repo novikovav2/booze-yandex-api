@@ -1,8 +1,9 @@
 import {Result} from "../../models/result";
 import {YC} from "../../yc";
-import {execute} from "../../db";
+import {execute, logger} from "../../db";
 
 export const getEvent = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> => {
+    logger.info("Start getEvent method")
     let result: Result
     const id = event.params.id
 
@@ -14,5 +15,6 @@ export const getEvent = async (event: YC.CloudFunctionsHttpEvent): Promise<Resul
         ...result,
         data: result.data[0]
     }
+    logger.info(`End getEvent method. Result: ${JSON.stringify(result)}`)
     return result
 }
