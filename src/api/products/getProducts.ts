@@ -23,7 +23,8 @@ export const getProducts = async (event: YC.CloudFunctionsHttpEvent): Promise<Re
                     WHERE p.buyerId = u.id
                         AND p.eventId = '${id}'`
     result = await execute(query)
-    if (result.status === SUCCESS && result.data.length > 0) {
+    logger.info(`Result after select from products: ${JSON.stringify(result)}`)
+    if (result.status === SUCCESS) {
         let products: Product[] = []
         for (const item of result.data) {
             let product: Product = {
@@ -50,6 +51,7 @@ export const getProducts = async (event: YC.CloudFunctionsHttpEvent): Promise<Re
                             WHERE e.userId = u.id
                                 AND productId = '${item.id}'`
             const eaterResult = await execute(queryEater)
+            logger.info(`Result after select eater: ${JSON.stringify(eaterResult)}`)
             const eaters: Eater[] = []
             eaterResult.data.forEach((e) => {
                 const eater: Eater = {
