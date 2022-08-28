@@ -12,6 +12,7 @@ export const addProduct = async (event: YC.CloudFunctionsHttpEvent): Promise<Res
     const product: NewProduct = JSON.parse(event.body)
     const uuidNew = uuid()
 
+
     const query = `UPSERT INTO products (id, title, eventId, buyerId, total, price )
                     VALUES ('${uuidNew}', '${product.title}', '${product.eventId}',
                             '${product.buyerId}', ${product.total}, ${product.price})`
