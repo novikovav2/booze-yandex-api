@@ -11,9 +11,12 @@ export const addEvent = async (event: YC.CloudFunctionsHttpEvent): Promise<Resul
     const newEvent: EventNew = JSON.parse(event.body)
     const uuidEvent = uuid()
 
-    const query = `UPSERT INTO events (id, authorId, evented_at, isPublic, reason, status, title)
-                    VALUES ('${uuidEvent}', '${newEvent.authorId}', CAST('${newEvent.evented_at}' as Datetime),
-                    ${newEvent.isPublic}, '${newEvent.reason}', '${newEvent.status}', '${newEvent.title}')`
+    const query = `$parse1 = DateTime::Parse("%Y-%m-%dT%H:%M:%SZ");
+                    UPSERT INTO events (id, authorId, evented_at, isPublic, reason, status, title)
+                    VALUES ('${uuidEvent}', '${newEvent.authorId}', 
+                    DateTime::MakeDatetime($parse1('${newEvent.evented_at}')) ,
+                    ${newEvent.isPublic}, '${newEvent.reason}', '${newEvent.status}', 
+                    '${newEvent.title}')`
     result = await execute(query)
     if (result.status === SUCCESS) {
         result = {

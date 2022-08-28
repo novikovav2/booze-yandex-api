@@ -10,6 +10,7 @@ import {getProducts} from "./api/products/getProducts";
 import {addProduct} from "./api/products/addProduct";
 import {deleteProduct} from "./api/products/deleteProduct";
 import {addEvent} from "./api/events/addEvent";
+import {deleteEvent} from "./api/events/deleteEvent";
 
 // context: YC.CloudFunctionsHttpContext
 export async function handler(event: YC.CloudFunctionsHttpEvent) {
@@ -29,6 +30,9 @@ export async function handler(event: YC.CloudFunctionsHttpEvent) {
             break;
         case "add-event":
             result = await addEvent(event)
+            break;
+        case "delete-event":
+            result = await deleteEvent(event)
             break;
         case "add-bot-member":
             result = await addBot(event, logger)
