@@ -13,6 +13,7 @@ import {addEvent} from "./api/events/addEvent";
 import {deleteEvent} from "./api/events/deleteEvent";
 import {editEvent} from "./api/events/editEvent";
 import {deleteMember} from "./api/members/deleteMember";
+import {getResult} from "./api/events/getResult";
 
 // context: YC.CloudFunctionsHttpContext
 export async function handler(event: YC.CloudFunctionsHttpEvent) {
@@ -38,6 +39,9 @@ export async function handler(event: YC.CloudFunctionsHttpEvent) {
             break;
         case "delete-event":
             result = await deleteEvent(event)
+            break;
+        case "get-event-result":
+            result = await getResult(event)
             break;
         case "add-bot-member":
             result = await addBot(event, logger)

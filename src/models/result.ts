@@ -3,3 +3,8 @@ export interface Result {
     message?: string,
     data?: any
 }
+
+export const RESULT_DEFAULT: Result = {
+    status: 200,
+    data: {}
+}
