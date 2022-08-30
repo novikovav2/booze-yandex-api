@@ -26,7 +26,7 @@ export async function execute(query:string): Promise<Result> {
     let result: Result
     try {
         await initDb()
-        logger.debug(`Starting execute query: ${query}`)
+        logger.info(`Starting execute query: ${query}`)
         const data = await driver.tableClient.withSession(async (session) => {
             return await session.executeQuery(query)
         })
