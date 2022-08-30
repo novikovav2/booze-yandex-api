@@ -2,11 +2,10 @@ import {YC} from "../../yc";
 import {Result} from "../../models/result";
 import {NewMember} from "../../models/member";
 import {v4 as uuid} from "uuid"
-import {execute} from "../../db";
+import {execute, logger} from "../../db";
 import {SUCCESS} from "../../consts";
 
-export const addBot = async (event: YC.CloudFunctionsHttpEvent,
-                             logger: any): Promise<Result> => {
+export const addBot = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> => {
     logger.info("Start addBot method")
 
     let result: Result

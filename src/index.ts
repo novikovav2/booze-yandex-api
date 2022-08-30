@@ -4,7 +4,6 @@ import {Result} from "./models/result";
 import {getEvent} from "./api/events/getEvent";
 import {getEvents} from "./api/events/getEvents";
 import {addBot} from "./api/members/addBot";
-import {logger} from "./db";
 import {getMembers} from "./api/members/getMembers";
 import {getProducts} from "./api/products/getProducts";
 import {addProduct} from "./api/products/addProduct";
@@ -14,6 +13,7 @@ import {deleteEvent} from "./api/events/deleteEvent";
 import {editEvent} from "./api/events/editEvent";
 import {deleteMember} from "./api/members/deleteMember";
 import {getResult} from "./api/events/getResult";
+import {getProduct} from "./api/products/getProduct";
 
 // context: YC.CloudFunctionsHttpContext
 export async function handler(event: YC.CloudFunctionsHttpEvent) {
@@ -44,7 +44,7 @@ export async function handler(event: YC.CloudFunctionsHttpEvent) {
             result = await getResult(event)
             break;
         case "add-bot-member":
-            result = await addBot(event, logger)
+            result = await addBot(event)
             break
         case "get-members":
             result = await getMembers(event)
@@ -54,6 +54,9 @@ export async function handler(event: YC.CloudFunctionsHttpEvent) {
             break
         case "get-event-products":
             result = await getProducts(event)
+            break
+        case "get-product":
+            result = await getProduct(event)
             break
         case "add-product":
             result = await addProduct(event)

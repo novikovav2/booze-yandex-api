@@ -51,7 +51,6 @@ export const getProducts = async (event: YC.CloudFunctionsHttpEvent): Promise<Re
                             WHERE e.userId = u.id
                                 AND productId = '${item.id}'`
             const eaterResult = await execute(queryEater)
-            logger.info(`Result after select eater: ${JSON.stringify(eaterResult)}`)
             const eaters: Eater[] = []
             eaterResult.data.forEach((e) => {
                 const eater: Eater = {
