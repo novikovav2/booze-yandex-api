@@ -8,3 +8,8 @@ export const RESULT_DEFAULT: Result = {
     status: 200,
     data: {}
 }
+
+export interface AuthResult {
+    isAuthorized: boolean,
+    context: Object
+}
