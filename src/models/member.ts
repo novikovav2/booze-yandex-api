@@ -2,7 +2,7 @@ import {User} from "./user";
 
 export interface NewMember {
     eventId: string,
-    username: string
+    username?: string
 }
 
 export interface Member {

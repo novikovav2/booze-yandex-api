@@ -7,7 +7,9 @@ export const getEvents = async (event: YC.CloudFunctionsHttpEvent): Promise<Resu
     const status = event.params.status
     const userId = event.requestContext.authorizer.user.id
 
-    let query = `SELECT e.id, authorId, evented_at, isPublic, reason, status, title
+    let query = `SELECT e.id as id, 
+                        authorId, 
+                        evented_at, isPublic, reason, status, title
                   FROM events e
                   CROSS JOIN members m
                   WHERE m.eventId = e.id AND m.userId = '${userId}'`

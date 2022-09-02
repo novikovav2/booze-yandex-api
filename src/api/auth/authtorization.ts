@@ -14,9 +14,9 @@ export const authorization = async (event: YC.CloudFunctionsHttpEvent): Promise<
     if (authHeader) {
         const token = authHeader.split(' ')[1]
         if (token) {
-            const query = `SELECT u.id,
-                                    u.username,
-                                    u.type 
+            const query = `SELECT u.id as id,
+                                    u.username as username,
+                                    u.type as type 
                             FROM tokens t
                             CROSS JOIN users u
                             WHERE t.userId = u.id AND t.id = '${token}'`
