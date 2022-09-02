@@ -1,0 +1,384 @@
+openapi: 3.0.0
+info:
+  title: Sample API
+  version: 1.0.0
+servers:
+  - url: https://d5dpvi4ectc4ek45bj7d.apigw.yandexcloud.net
+paths:
+  /:
+    get:
+      x-yc-apigateway-integration:
+        type: object-storage
+        bucket: booze-dev
+        object: index.html
+        presigned_redirect: false
+      operationId: index
+  /{file}:
+    get:
+      x-yc-apigateway-integration:
+        type: object-storage
+        bucket: booze-dev
+        object: '{file}'
+        presigned_redirect: false
+      operationId: static
+      parameters:
+        - explode: false
+          in: path
+          name: file
+          required: true
+          schema:
+            type: string
+          style: simple
+  /main/{file}:
+    get:
+      x-yc-apigateway-integration:
+        type: object-storage
+        bucket: booze-dev
+        object: index.html
+        presigned_redirect: false
+      operationId: staticTest
+      parameters:
+        - explode: false
+          in: path
+          name: file
+          required: true
+          schema:
+            type: string
+          style: simple
+  /auth/{file}:
+    get:
+      x-yc-apigateway-integration:
+        type: object-storage
+        bucket: booze-dev
+        object: index.html
+        presigned_redirect: false
+      operationId: staticTest2
+      parameters:
+        - explode: false
+          in: path
+          name: file
+          required: true
+          schema:
+            type: string
+          style: simple
+  /api/events:
+    get:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: get-events
+      parameters:
+        - description: Status of events
+          explode: true
+          in: query
+          name: status
+          required: false
+          schema:
+            type: string
+          style: form
+      security:
+        - httpAuth: []
+      summary: Get Events
+    post:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: add-event
+      operationId: AddEvent
+      security:
+        - httpAuth: []
+      summary: Add new Event
+  /api/events/generate:
+    get:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: generated-event
+  /api/events/members:
+    post:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: add-bot-member
+      operationId: AddBotMember
+      summary: Add new BOT member
+  /api/events/{id}:
+    delete:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: delete-event
+      operationId: DeleteEvent
+      parameters:
+        - description: ID of event
+          explode: false
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          style: simple
+      security:
+        - httpAuth: []
+      summary: Delete Event by ID
+    get:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: get-event
+      operationId: GetEvent
+      parameters:
+        - description: ID of event
+          explode: false
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          style: simple
+      summary: Get Event by ID
+    put:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: edit-event
+      operationId: UpdateEvent
+      parameters:
+        - description: ID of event
+          explode: false
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          style: simple
+      summary: Update Event by ID
+  /api/events/{id}/products:
+    get:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: get-event-products
+      operationId: GetEventProducts
+      parameters:
+        - description: ID of event
+          explode: false
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          style: simple
+      summary: Get Products by EventID
+  /api/events/{id}/result:
+    get:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: get-event-result
+      operationId: GetEventResult
+      parameters:
+        - description: ID of event
+          explode: false
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          style: simple
+      summary: Get Result of Event
+  /api/members:
+    post:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: add-bot-member
+      operationId: AddBotMemberTest
+      summary: Add new BOT member
+    put:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: join-member
+      operationId: JoinMember
+      security:
+        - httpAuth: []
+      summary: Join member to event
+  /api/members/{id}:
+    delete:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: delete-member
+      operationId: DeleteMember
+      parameters:
+        - description: ID of member
+          explode: false
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          style: simple
+      summary: Delete member by ID
+    get:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: get-members
+      operationId: GetMembers
+      parameters:
+        - description: ID of event
+          explode: false
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          style: simple
+      summary: Get members by EventID
+  /api/products/{id}:
+    delete:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: delete-product
+      operationId: deleteProduct
+      parameters:
+        - description: ID of product
+          explode: false
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          style: simple
+      summary: Delete product by ID
+    get:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: get-product
+      operationId: GetProduct
+      parameters:
+        - description: ID of product
+          explode: false
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          style: simple
+      summary: Get Product by ID
+    put:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: edit-product
+      operationId: UpdateProduct
+      parameters:
+        - description: ID of product
+          explode: false
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          style: simple
+      summary: Update Product by ID
+  /api/products:
+    post:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: add-product
+      operationId: AddProduct
+      summary: Add product
+  /api/auth/signUp:
+    post:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: add-user
+      operationId: AddUser
+      summary: Add user
+  /api/auth/login:
+    delete:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: logout
+      operationId: Logout
+      security:
+        - httpAuth: []
+      summary: Logout
+    post:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: login
+      operationId: Login
+      summary: Login
+  /api/auth/profile:
+    get:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: get-profile
+      operationId: GetProfile
+      security:
+        - httpAuth: []
+      summary: Get user profile
+    put:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: edit-profile
+      operationId: UpdateProfile
+      security:
+        - httpAuth: []
+      summary: Update user profile
+    post:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: edit-password
+      operationId: UpdatePassword
+      security:
+        - httpAuth: []
+      summary: Update user password
+components:
+  securitySchemes:
+    httpAuth:
+      x-yc-apigateway-authorizer:
+        type: function
+        function_id: d4epg353cj6h83smoqvu
+        tag: $latest
+        authorizer_result_ttl_in_seconds: 300
+        context:
+          api: auth
+      scheme: bearer
+      type: http

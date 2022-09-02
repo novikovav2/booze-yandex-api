@@ -22,6 +22,7 @@ import {logout} from "./api/auth/logout";
 import {authorization} from "./api/auth/authtorization";
 import {joinMember} from "./api/members/joinMember";
 import {getProfile} from "./api/auth/getProfile";
+import {editPassword} from "./api/auth/editPassword";
 
 // context: YC.CloudFunctionsHttpContext
 export async function handler(event: YC.CloudFunctionsHttpEvent) {
@@ -92,6 +93,9 @@ export async function handler(event: YC.CloudFunctionsHttpEvent) {
                 break
             case "edit-profile":
                 result = await editProfile(event)
+                break
+            case "edit-password":
+                result = await editPassword(event)
                 break
         }
         return {
