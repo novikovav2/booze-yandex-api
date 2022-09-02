@@ -21,6 +21,7 @@ import {login} from "./api/auth/login";
 import {logout} from "./api/auth/logout";
 import {authorization} from "./api/auth/authtorization";
 import {joinMember} from "./api/members/joinMember";
+import {getProfile} from "./api/auth/getProfile";
 
 // context: YC.CloudFunctionsHttpContext
 export async function handler(event: YC.CloudFunctionsHttpEvent) {
@@ -77,9 +78,6 @@ export async function handler(event: YC.CloudFunctionsHttpEvent) {
             case "edit-product":
                 result = await editProduct(event)
                 break
-            case "edit-profile":
-                result = await editProfile(event)
-                break
             case "add-user":
                 result = await addUser(event)
                 break
@@ -88,6 +86,12 @@ export async function handler(event: YC.CloudFunctionsHttpEvent) {
                 break
             case "logout":
                 result = await logout(event)
+                break
+            case "get-profile":
+                result = await getProfile(event)
+                break
+            case "edit-profile":
+                result = await editProfile(event)
                 break
         }
         return {
