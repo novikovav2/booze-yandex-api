@@ -16,5 +16,7 @@ export const DATABASE = process.env.DATABASE
 
 export const URL = process.env.URL
 export const CONFIRMATION_URL = URL + '/auth/confirm'
+export const NEW_PASSWORD_URL = URL + '/auth/newPassword'
 
 export const SBJ_REGISTRATION = 'Добро пожаловать!'
+export const SBJ_PASSWORD_RESET = 'Сброс пароля'

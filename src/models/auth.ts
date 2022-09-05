@@ -12,3 +12,7 @@ export interface Token {
 export interface ConfirmationData {
     confirmationId: string
 }
+
+export interface ResetPassword {
+    email: string
+}

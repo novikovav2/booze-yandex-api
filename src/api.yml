@@ -8,55 +8,117 @@ paths:
   /:
     get:
       x-yc-apigateway-integration:
-        type: object-storage
-        bucket: booze-dev
-        object: index.html
-        presigned_redirect: false
+        type: http
+        url: https://booze-dev.website.yandexcloud.net/index.html
+        headers:
+          Accept-Encoding: gzip
       operationId: index
-  /{file}:
+  /{url}:
     get:
       x-yc-apigateway-integration:
-        type: object-storage
-        bucket: booze-dev
-        object: '{file}'
-        presigned_redirect: false
+        type: http
+        url: https://booze-dev.website.yandexcloud.net/{url}
+        headers:
+          Accept-Encoding: gzip
       operationId: static
       parameters:
         - explode: false
           in: path
-          name: file
+          name: url
           required: true
           schema:
             type: string
           style: simple
-  /main/{file}:
+  /assets/{url}:
     get:
       x-yc-apigateway-integration:
-        type: object-storage
-        bucket: booze-dev
-        object: index.html
-        presigned_redirect: false
+        type: http
+        url: https://booze-dev.website.yandexcloud.net/assets/{url}
+      operationId: assets
+      parameters:
+        - explode: false
+          in: path
+          name: url
+          required: true
+          schema:
+            type: string
+          style: simple
+  /main/{url}:
+    get:
+      x-yc-apigateway-integration:
+        type: http
+        url: https://booze-dev.website.yandexcloud.net/index.html
+        headers:
+          Accept-Encoding: gzip
       operationId: staticTest
       parameters:
         - explode: false
           in: path
-          name: file
+          name: url
           required: true
           schema:
             type: string
           style: simple
-  /auth/{file}:
+  /main/events/{url}:
     get:
       x-yc-apigateway-integration:
-        type: object-storage
-        bucket: booze-dev
-        object: index.html
-        presigned_redirect: false
+        type: http
+        url: https://booze-dev.website.yandexcloud.net/index.html
+        headers:
+          Accept-Encoding: gzip
+      operationId: Direct accees to event for user
+      parameters:
+        - explode: false
+          in: path
+          name: url
+          required: true
+          schema:
+            type: string
+          style: simple
+  /auth/{url}:
+    get:
+      x-yc-apigateway-integration:
+        type: http
+        url: https://booze-dev.website.yandexcloud.net/index.html
+        headers:
+          Accept-Encoding: gzip
       operationId: staticTest2
       parameters:
         - explode: false
           in: path
-          name: file
+          name: url
+          required: true
+          schema:
+            type: string
+          style: simple
+  /auth/confirm/{id}:
+    get:
+      x-yc-apigateway-integration:
+        type: http
+        url: https://booze-dev.website.yandexcloud.net/index.html
+        headers:
+          Accept-Encoding: gzip
+      operationId: ConfirmHumanUrl
+      parameters:
+        - explode: false
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          style: simple
+  /auth/newPassword/{id}:
+    get:
+      x-yc-apigateway-integration:
+        type: http
+        url: https://booze-dev.website.yandexcloud.net/index.html
+        headers:
+          Accept-Encoding: gzip
+      operationId: NewUserPassword
+      parameters:
+        - explode: false
+          in: path
+          name: id
           required: true
           schema:
             type: string
@@ -350,16 +412,6 @@ paths:
       security:
         - httpAuth: []
       summary: Get user profile
-    put:
-      x-yc-apigateway-integration:
-        type: cloud-functions
-        function_id: d4epg353cj6h83smoqvu
-        context:
-          api: edit-profile
-      operationId: UpdateProfile
-      security:
-        - httpAuth: []
-      summary: Update user profile
     post:
       x-yc-apigateway-integration:
         type: cloud-functions
@@ -370,6 +422,43 @@ paths:
       security:
         - httpAuth: []
       summary: Update user password
+    put:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: edit-profile
+      operationId: UpdateProfile
+      security:
+        - httpAuth: []
+      summary: Update user profile
+  /api/auth/confirm:
+    post:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: confirmation
+      operationId: ConfirmUserApiUrl
+      summary: Confirmation API
+  /api/auth/resetPassword:
+    post:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: resetPassword
+      operationId: ResetUserPassword
+      summary: Reset User Password
+  /api/auth/newPassword:
+    post:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: newPassword
+      operationId: New password for user
+      summary: Set new user password
 components:
   securitySchemes:
     httpAuth:

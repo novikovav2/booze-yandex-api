@@ -3,5 +3,6 @@ export interface NewProfile {
 }
 
 export interface NewPassword {
-    password: string
+    password: string,
+    userId?: string
 }
