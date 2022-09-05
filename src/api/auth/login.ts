@@ -15,7 +15,7 @@ export const login = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> 
 
     const queryFromUsers = `SELECT id, password 
                             FROM users
-                            WHERE type = 'man'
+                            WHERE type = 'man' AND isActive = true
                                 AND email = '${auth.email}'`
     result = await execute(queryFromUsers)
     if (result.status === SUCCESS && result.data.length > 0) {

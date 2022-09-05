@@ -1,6 +1,6 @@
 import {Driver, getLogger, IAuthService, MetadataAuthService, Ydb} from "ydb-sdk";
 import {Result} from "./models/result";
-import {BAD_REQUEST, SUCCESS} from "./consts";
+import {BAD_REQUEST, DATABASE, ENDPOINT, SUCCESS} from "./consts";
 
 export const logger = getLogger()
 export let driver: Driver
@@ -10,8 +10,8 @@ export async function initDb() {
 
     let authService: IAuthService = new MetadataAuthService()
     driver = new Driver({
-        endpoint: process.env.ENDPOINT,
-        database: process.env.DATABASE,
+        endpoint: ENDPOINT,
+        database: DATABASE,
         authService
     })
     const timeout = 10000

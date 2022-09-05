@@ -14,7 +14,9 @@
   },
   "dependencies": {
     "@types/bcrypt": "^5.0.0",
+    "@types/nodemailer": "^6.4.5",
     "bcrypt": "^5.0.1",
+    "nodemailer": "^6.7.8",
     "uuid": "^8.3.2",
     "ydb-sdk": "^3.4.0"
   }
