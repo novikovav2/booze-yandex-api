@@ -1,17 +1,18 @@
 import {YC} from "../../yc";
 import {Result, RESULT_DEFAULT} from "../../models/result";
-import {logger} from "../../db";
-import {getProducts} from "../products/getProducts";
+import {execute, logger} from "../../db";
 import {Product} from "../../models/product";
 import {Member} from "../../models/member";
 import {getMembers} from "../members/getMembers";
 import {Donor, EventResult, Payment, Recipient} from "../../models/event-result";
+import {SUCCESS} from "../../consts";
+import {Eater} from "../../models/eater";
 
 export const getResult = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> => {
     logger.info("Start getResult method.")
     let result: Result = RESULT_DEFAULT
     const id = event.params.id
-    const products: Product[] = (await getProducts(event)).data
+    const products: Product[] = (await getProductsData(event)).data
     const members: Member[] = (await getMembers(event)).data
 
     let recipients: Recipient[] = []
@@ -81,6 +82,77 @@ export const getResult = async (event: YC.CloudFunctionsHttpEvent): Promise<Resu
         data: eventResult
     }
     logger.info(`End getResult method. Result: ${JSON.stringify(result)}`)
+    return result
+}
+
+const getProductsData = async (event: YC.CloudFunctionsHttpEvent) => {
+    logger.info("Start getProductsData method")
+
+    let result: Result
+    const id = event.params.id
+    const query = `SELECT p.id as id,
+                            p.eventId as eventId,
+                            p.title as title,
+                            p.price as price,
+                            p.total as total,
+                            u.id as userId,
+                            u.username as username,
+                            u.type as type
+                    FROM products p
+                    CROSS JOIN users u
+                    WHERE p.buyerId = u.id
+                        AND p.eventId = '${id}'`
+    result = await execute(query)
+    logger.info(`Result after select from products: ${JSON.stringify(result)}`)
+    if (result.status === SUCCESS) {
+        let products: Product[] = []
+        for (const item of result.data) {
+            let product: Product = {
+                id: item.id,
+                eventId: item.eventId,
+                title: item.title,
+                price: item.price,
+                total: item.total,
+                buyer: {
+                    id: item.userId,
+                    username: item.username,
+                    type: item.type
+                }
+            }
+
+            const queryEater = `SELECT e.id as id,
+                                       e.productId as productId,
+                                       e.number as number,
+                                       e.userId as userId,
+                                       u.username as username,
+                                       u.type as type
+                            FROM eaters e
+                            CROSS JOIN users u
+                            WHERE e.userId = u.id
+                                AND productId = '${item.id}'`
+            const eaterResult = await execute(queryEater)
+            const eaters: Eater[] = []
+            eaterResult.data.forEach((e) => {
+                const eater: Eater = {
+                    user: {
+                        id: e.userId,
+                        username: e.username,
+                        type: e.type
+                    },
+                    count: e.number
+                }
+                eaters.push(eater)
+            })
+            product.eaters = eaters
+            products.push(product)
+        }
+        result = {
+            ...result,
+            data: products
+        }
+    }
+
+    logger.info(`End getProducts method. Result: ${JSON.stringify(result)}`)
     return result
 }
 

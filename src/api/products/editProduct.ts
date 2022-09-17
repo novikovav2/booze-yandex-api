@@ -3,6 +3,7 @@ import {Result} from "../../models/result";
 import {execute, logger} from "../../db";
 import {NewProduct} from "../../models/product";
 import {SUCCESS} from "../../consts";
+import {v4 as uuid} from "uuid"
 
 export const editProduct = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> => {
     logger.info("Start editProduct method")
@@ -21,8 +22,9 @@ export const editProduct = async (event: YC.CloudFunctionsHttpEvent): Promise<Re
         await execute(queryCleanEaters)
 
         for (const eater of product.eaters) {
-            const queryEaters = `UPSERT INTO eaters (id, number, productId, userId)
-                                VALUES ('${eater.user.id}', 0, '${id}', '${eater.user.id}')`
+            const eaterId = uuid()
+            const queryEaters = `INSERT INTO eaters (id, number, productId, userId)
+                                VALUES ('${eaterId}', 0, '${id}', '${eater.user.id}')`
             await execute(queryEaters)
         }
     }

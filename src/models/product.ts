@@ -9,7 +9,8 @@ export interface Product {
     price: number,
     total: number,
     buyer: User,
-    eaters?: Eater[]
+    eaters?: Eater[],
+    eatersCount?: number
 }
 
 export interface NewProduct {
