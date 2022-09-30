@@ -19,10 +19,9 @@ export const getProducts = async (event: YC.CloudFunctionsHttpEvent): Promise<Re
                             u.type as type,
                             count(e.id) as count
                     FROM products p
-                    CROSS JOIN users u
+                    LEFT JOIN users u ON p.buyerId = u.id 
                     LEFT JOIN eaters e ON p.id = e.productId 
-                    WHERE p.buyerId = u.id
-                        AND p.eventId = '${id}'
+                    WHERE p.eventId = '${id}'
                     group by p.id, p.eventId, p.title, p.price, p.total,
                                 u.id, u.username, u.type
                     order by title`
