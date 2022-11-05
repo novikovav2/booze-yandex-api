@@ -17,7 +17,8 @@ export const getMembers = async (event: YC.CloudFunctionsHttpEvent): Promise<Res
                     from members m
                     cross join users u
                     where m.userId = u.id
-                        and m.eventId = '${id}'`
+                        and m.eventId = '${id}'
+                    order by username`
         result = await execute(query)
         if (result.status === SUCCESS) {
             logger.info("Data received successfully")

@@ -46,7 +46,8 @@ export const getProduct = async (event: YC.CloudFunctionsHttpEvent): Promise<Res
                             FROM eaters e
                             CROSS JOIN users u
                             WHERE e.userId = u.id
-                                AND productId = '${id}'`
+                                AND productId = '${id}'
+                            order by username`
         const eaterResult = await execute(queryEater)
         const eaters: Eater[] = []
         eaterResult.data.forEach((e) => {
