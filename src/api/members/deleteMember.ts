@@ -2,6 +2,7 @@ import {YC} from "../../yc";
 import {Result} from "../../models/result";
 import {execute, logger} from "../../db";
 import {BAD_REQUEST, SUCCESS} from "../../consts";
+import {clearResult} from "../shared/clearResult";
 
 export const deleteMember = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> => {
     logger.info("Start deleteMember method")
@@ -53,6 +54,7 @@ export const deleteMember = async (event: YC.CloudFunctionsHttpEvent): Promise<R
                     WHERE id = '${id}'`
             result = await execute(query)
         }
+        await clearResult(member.eventId)
     }
 
     logger.info(`End deleteMember method. Result: ${JSON.stringify(result)}`)

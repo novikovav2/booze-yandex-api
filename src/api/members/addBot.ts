@@ -4,6 +4,7 @@ import {NewMember} from "../../models/member";
 import {v4 as uuid} from "uuid"
 import {execute, logger} from "../../db";
 import {SUCCESS} from "../../consts";
+import {clearResult} from "../shared/clearResult";
 
 export const addBot = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> => {
     logger.info("Start addBot method")
@@ -22,6 +23,8 @@ export const addBot = async (event: YC.CloudFunctionsHttpEvent): Promise<Result>
                                     VALUES ('${uuidMember}', '${member.eventId}', '${uuidBot}')`
         result = await execute(queryAddBotToEvent)
     }
+
+    await clearResult(member.eventId)
     logger.info(`End addBot method. Result: ${JSON.stringify(result)}`)
     return result
 }

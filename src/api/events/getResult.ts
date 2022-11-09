@@ -1,86 +1,95 @@
 import {YC} from "../../yc";
-import {Result, RESULT_DEFAULT} from "../../models/result";
+import {Result} from "../../models/result";
 import {execute, logger} from "../../db";
 import {Product} from "../../models/product";
 import {Member} from "../../models/member";
 import {getMembers} from "../members/getMembers";
 import {Donor, EventResult, Payment, Recipient} from "../../models/event-result";
-import {SUCCESS} from "../../consts";
+import {NOT_FOUND, SUCCESS} from "../../consts";
 import {Eater} from "../../models/eater";
+import {v4 as uuid} from "uuid"
 
 export const getResult = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> => {
     logger.info("Start getResult method.")
-    let result: Result = RESULT_DEFAULT
+    let result: Result
     const id = event.params.id
-    const products: Product[] = (await getProductsData(event)).data
-    const members: Member[] = (await getMembers(event)).data
 
-    let recipients: Recipient[] = []
-    let donors: Donor[] = []
+    result = await getResultFromDB(id)
+    if (result.status !== SUCCESS) {
+        // Результата нет в БД или он пустой
+        logger.info("No result in DB. Starting long process...")
+        const products: Product[] = (await getProductsData(event)).data
+        const members: Member[] = (await getMembers(event)).data
 
-    members.forEach((member) => {
-        // Вычисляем на сколько участник съел
-        const ate = calculateAte(member, products)
-        // Вычисляем сколько участник заплатил за продукты
-        const paid = calculatePaid(member, products)
-        if (paid >= ate) {
-            recipients.push({
-                user: member.user,
-                currentPaid: paid - ate,
-                totalPaid: paid
-            })
-        } else {
-            const donor: Donor = {
-                user: member.user,
-                payments: [],
-                currentAte: ate - paid,
-                totalAte: ate
-            }
-            donors.push(donor)
-        }
-    })
-    donors.forEach((donor) => {
-        recipients.forEach((recipient) => {
-            let payment: Payment
-            if (donor.currentAte === 0) {
-                payment = {
-                    recipient: recipient.user,
-                    value: 0
-                }
+        let recipients: Recipient[] = []
+        let donors: Donor[] = []
+
+        members.forEach((member) => {
+            // Вычисляем на сколько участник съел
+            const ate = calculateAte(member, products)
+            // Вычисляем сколько участник заплатил за продукты
+            const paid = calculatePaid(member, products)
+            if (paid >= ate) {
+                recipients.push({
+                    user: member.user,
+                    currentPaid: paid - ate,
+                    totalPaid: paid
+                })
             } else {
-                if (donor.currentAte >= recipient.currentPaid) {
-                    payment = {
-                        recipient: recipient.user,
-                        value: recipient.currentPaid
-                    }
-                    donor.currentAte = donor.currentAte - recipient.currentPaid
-                    recipient.currentPaid = 0
-                } else {
-                    payment = {
-                        recipient: recipient.user,
-                        value: donor.currentAte
-                    }
-                    recipient.currentPaid = recipient.currentPaid - donor.currentAte
-                    donor.currentAte = 0
+                const donor: Donor = {
+                    user: member.user,
+                    payments: [],
+                    currentAte: ate - paid,
+                    totalAte: ate
                 }
+                donors.push(donor)
             }
-            donor.payments.push(payment)
         })
-        delete donor.currentAte // удаляем вспомогательную переменную
-    })
-    // удаляем вспомогательную переменную
-    recipients.forEach((recipient) => { delete recipient.currentPaid})
+        donors.forEach((donor) => {
+            recipients.forEach((recipient) => {
+                let payment: Payment
+                if (donor.currentAte === 0) {
+                    payment = {
+                        recipient: recipient.user,
+                        value: 0
+                    }
+                } else {
+                    if (donor.currentAte >= recipient.currentPaid) {
+                        payment = {
+                            recipient: recipient.user,
+                            value: recipient.currentPaid
+                        }
+                        donor.currentAte = donor.currentAte - recipient.currentPaid
+                        recipient.currentPaid = 0
+                    } else {
+                        payment = {
+                            recipient: recipient.user,
+                            value: donor.currentAte
+                        }
+                        recipient.currentPaid = recipient.currentPaid - donor.currentAte
+                        donor.currentAte = 0
+                    }
+                }
+                donor.payments.push(payment)
+            })
+            delete donor.currentAte // удаляем вспомогательную переменную
+        })
+        // удаляем вспомогательную переменную
+        recipients.forEach((recipient) => { delete recipient.currentPaid})
 
 
-    let eventResult: EventResult = {
-        eventId: id,
-        recipients: recipients,
-        donors: donors
+        let eventResult: EventResult = {
+            eventId: id,
+            recipients: recipients,
+            donors: donors
+        }
+        result = await saveResultToDB(id, eventResult)
+        result = {
+            ...result,
+            data: eventResult
+        }
     }
-    result = {
-        ...result,
-        data: eventResult
-    }
+
     logger.info(`End getResult method. Result: ${JSON.stringify(result)}`)
     return result
 }
@@ -176,5 +185,35 @@ const calculatePaid = (member: Member, products: Product[]) => {
             result = result + product.price
         }
     })
+    return result
+}
+
+const saveResultToDB = async (eventId: string, eventResult: EventResult) => {
+    const resultUuid = uuid()
+    const queryDeleteOldResult = `DELETE FROM results
+                                    WHERE eventId = '${eventId}'`
+    await execute(queryDeleteOldResult)
+
+    const query = `INSERT into results (id, eventId, result)
+                    VALUES ('${resultUuid}', '${eventId}', '${JSON.stringify(eventResult)}')`
+    return await execute(query)
+}
+
+const getResultFromDB = async (eventId: string) => {
+    let result: Result
+    const query = `SELECT result
+                    FROM results
+                    WHERE eventId = '${eventId}'`
+    result = await execute(query)
+    if (result.status === SUCCESS && result.data.length > 0) {
+        logger.info("Result from DB received successfully")
+        result = {
+            ...result,
+            data: result.data[0].result
+        }
+    } else {
+        result.status = NOT_FOUND
+    }
+
     return result
 }

@@ -4,6 +4,7 @@ import {execute, logger} from "../../db";
 import {NewProduct} from "../../models/product";
 import {v4 as uuid} from "uuid"
 import {SUCCESS} from "../../consts";
+import {clearResult} from "../shared/clearResult";
 
 export const addProduct = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> => {
     logger.info("Start addProduct method")
@@ -24,6 +25,7 @@ export const addProduct = async (event: YC.CloudFunctionsHttpEvent): Promise<Res
                                 VALUES ('${eaterId}', 0, '${uuidNew}', '${eater.user.id}')`
             await execute(queryEaters)
         }
+        await clearResult(product.eventId)
     }
 
     logger.info(`End addProduct method. Result: ${JSON.stringify(result)}`)

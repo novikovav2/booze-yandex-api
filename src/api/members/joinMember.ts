@@ -4,6 +4,7 @@ import {execute, logger} from "../../db";
 import {BAD_REQUEST} from "../../consts";
 import {v4 as uuid} from "uuid"
 import {User} from "../../models/user";
+import {clearResult} from "../shared/clearResult";
 
 export const joinMember = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> => {
     logger.info("Start joinMember method")
@@ -14,9 +15,10 @@ export const joinMember = async (event: YC.CloudFunctionsHttpEvent): Promise<Res
 
     if (eventId && user.id) {
         const uuidMember = uuid()
-        const query = `UPSERT INTO members (id, eventId, userId)
+        const query = `INSERT INTO members (id, eventId, userId)
                    VALUES ('${uuidMember}', '${eventId}', '${user.id}')`
         result = await execute(query)
+        await clearResult(eventId)
     } else {
         result = {
             status: BAD_REQUEST,
