@@ -26,6 +26,8 @@ import {editPassword} from "./api/auth/editPassword";
 import {confirmation} from "./api/auth/confirmation";
 import {resetPassword} from "./api/auth/resetPassword";
 import {newPassword} from "./api/auth/newPassword";
+import {getMember} from "./api/members/getMember";
+import {updateMember} from "./api/members/updateMember";
 
 // context: YC.CloudFunctionsHttpContext
 export async function handler(event: YC.CloudFunctionsHttpEvent) {
@@ -61,11 +63,17 @@ export async function handler(event: YC.CloudFunctionsHttpEvent) {
             case "get-members":
                 result = await getMembers(event)
                 break
+            case "get-member":
+                result = await getMember(event)
+                break
             case "delete-member":
                 result = await deleteMember(event)
                 break
             case "join-member":
                 result = await joinMember(event)
+                break
+            case "update-member":
+                result = await updateMember(event)
                 break
             case "get-event-products":
                 result = await getProducts(event)

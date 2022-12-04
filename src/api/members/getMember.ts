@@ -1,11 +1,11 @@
 import {Result} from "../../models/result";
 import {YC} from "../../yc";
-import {BAD_REQUEST, SUCCESS} from "../../consts";
 import {execute, logger} from "../../db";
+import {BAD_REQUEST, SUCCESS} from "../../consts";
 import {Member} from "../../models/member";
 
-export const getMembers = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> => {
-    logger.info("Start getMembers method")
+export const getMember = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> => {
+    logger.info("Start getMember method")
     let result: Result
     const id = event.params.id
 
@@ -18,18 +18,25 @@ export const getMembers = async (event: YC.CloudFunctionsHttpEvent): Promise<Res
                     from members m
                     cross join users u
                     where m.userId = u.id
-                        and m.eventId = '${id}'
-                    order by username`
+                        and m.id = '${id}'`
         result = await execute(query)
         if (result.status === SUCCESS) {
             logger.info("Data received successfully")
             logger.info(`Data: ${JSON.stringify(result.data)}`)
+            const member: Member = {
+                id: result.data[0].id,
+                eventId: result.data[0].eventId,
+                user: {
+                    id: result.data[0].userId,
+                    username: result.data[0].username,
+                    type: result.data[0].type
+                }
+            }
             result = {
                 ...result,
-                data: parseMembers(result.data)
+                data: member
             }
         }
-
     } else {
         result = {
             status: BAD_REQUEST,
@@ -38,23 +45,7 @@ export const getMembers = async (event: YC.CloudFunctionsHttpEvent): Promise<Res
             }
         }
     }
-    logger.info(`End getMembers method. Result: ${JSON.stringify(result)}`)
-    return result
-}
 
-const parseMembers = (data: any[]) => {
-    let result: Member[] = []
-    data.forEach((item) => {
-        const member: Member = {
-            id: item.id,
-            eventId: item.eventId,
-            user: {
-                id: item.userId,
-                username: item.username,
-                type: item.type
-            }
-        }
-        result.push(member)
-    })
+    logger.info(`End getMember method. Result: ${JSON.stringify(result)}`)
     return result
 }

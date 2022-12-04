@@ -159,15 +159,6 @@ paths:
         function_id: d4epg353cj6h83smoqvu
         context:
           api: generated-event
-  /api/events/members:
-    post:
-      x-yc-apigateway-integration:
-        type: cloud-functions
-        function_id: d4epg353cj6h83smoqvu
-        context:
-          api: add-bot-member
-      operationId: AddBotMember
-      summary: Add new BOT member
   /api/events/{id}:
     delete:
       x-yc-apigateway-integration:
@@ -267,16 +258,6 @@ paths:
           api: add-bot-member
       operationId: AddBotMemberTest
       summary: Add new BOT member
-    put:
-      x-yc-apigateway-integration:
-        type: cloud-functions
-        function_id: d4epg353cj6h83smoqvu
-        context:
-          api: join-member
-      operationId: JoinMember
-      security:
-        - httpAuth: []
-      summary: Join member to event
   /api/members/{id}:
     delete:
       x-yc-apigateway-integration:
@@ -300,6 +281,41 @@ paths:
         type: cloud-functions
         function_id: d4epg353cj6h83smoqvu
         context:
+          api: get-member
+      operationId: GetMember
+      parameters:
+        - description: ID of member
+          explode: false
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          style: simple
+      summary: Get member by ID
+    put:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: update-member
+      operationId: UpdateMember
+      summary: Update member
+      parameters:
+        - description: ID of member
+          explode: false
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          style: simple
+  /api/members/events/{id}:
+    get:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
           api: get-members
       operationId: GetMembers
       parameters:
@@ -312,6 +328,17 @@ paths:
             type: string
           style: simple
       summary: Get members by EventID
+  /api/members/join:
+    put:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: join-member
+      operationId: JoinMember
+      security:
+        - httpAuth: [ ]
+      summary: Join member to event
   /api/products/{id}:
     delete:
       x-yc-apigateway-integration:
