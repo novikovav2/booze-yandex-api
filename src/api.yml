@@ -258,6 +258,23 @@ paths:
           api: add-bot-member
       operationId: AddBotMemberTest
       summary: Add new BOT member
+    put:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: update-member
+      operationId: UpdateMember
+      parameters:
+        - description: ID of member
+          explode: false
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          style: simple
+      summary: Update member
   /api/members/{id}:
     delete:
       x-yc-apigateway-integration:
@@ -293,23 +310,6 @@ paths:
             type: string
           style: simple
       summary: Get member by ID
-    put:
-      x-yc-apigateway-integration:
-        type: cloud-functions
-        function_id: d4epg353cj6h83smoqvu
-        context:
-          api: update-member
-      operationId: UpdateMember
-      summary: Update member
-      parameters:
-        - description: ID of member
-          explode: false
-          in: path
-          name: id
-          required: true
-          schema:
-            type: string
-          style: simple
   /api/members/events/{id}:
     get:
       x-yc-apigateway-integration:
@@ -337,7 +337,7 @@ paths:
           api: join-member
       operationId: JoinMember
       security:
-        - httpAuth: [ ]
+        - httpAuth: []
       summary: Join member to event
   /api/products/{id}:
     delete:
@@ -400,6 +400,41 @@ paths:
           api: add-product
       operationId: AddProduct
       summary: Add product
+  /api/products/members/{id}:
+    get:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: get-products-by-member
+      operationId: GetProductByMember
+      parameters:
+        - description: ID of member
+          explode: false
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          style: simple
+      summary: Get Products by MemberID
+    put:
+      x-yc-apigateway-integration:
+        type: cloud-functions
+        function_id: d4epg353cj6h83smoqvu
+        context:
+          api: update-products-by-member
+      operationId: UpdateProductsByMember
+      parameters:
+        - description: ID of member
+          explode: false
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          style: simple
+      summary: Update products by member
   /api/auth/signUp:
     post:
       x-yc-apigateway-integration:
