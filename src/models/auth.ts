@@ -4,9 +4,10 @@ export interface Auth {
 }
 
 export interface Token {
-    token: string,
+    id: string,
     created_at: string,
-    ttl: number // Время жизни в секундах
+    ttl: number, // Время жизни в секундах,
+    userId: string
 }
 
 export interface ConfirmationData {

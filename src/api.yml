@@ -329,7 +329,7 @@ paths:
           style: simple
       summary: Get members by EventID
   /api/members/join:
-    put:
+    post:
       x-yc-apigateway-integration:
         type: cloud-functions
         function_id: d4epg353cj6h83smoqvu

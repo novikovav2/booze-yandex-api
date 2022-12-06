@@ -37,9 +37,10 @@ export const login = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> 
             result = await execute(queryCreateToken)
             if (result.status === SUCCESS) {
                 const resultToken: Token = {
-                    token,
+                    id: token,
                     created_at,
-                    ttl: 604800 // в секундах === 7 дней
+                    ttl: 604800, // в секундах === 7 дней
+                    userId: user.id
                 }
                 result = {
                     ...result,
