@@ -4,20 +4,27 @@ import {execute, logger} from "../../db";
 import {BAD_REQUEST, MSG_INCORRECT_USER_OR_PASSWORD, MSG_TOKEN_NOT_CREATED, SUCCESS} from "../../consts";
 import {v4 as uuid} from "uuid"
 import {Auth, Token} from "../../models/auth";
-import {User} from "../../models/user";
+import {User, USER_TYPE} from "../../models/user";
 import {compare} from "bcrypt";
+import {TypedValues} from "ydb-sdk";
 
 export const login = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> => {
     logger.info("Start login method")
     let result: Result
 
     const auth: Auth = JSON.parse(event.body)
-
-    const queryFromUsers = `SELECT id, password 
+    const typeUser: USER_TYPE = 'man'
+    const queryFromUsers = `DECLARE $email AS Utf8;
+                            DECLARE $type AS Utf8;
+                            SELECT id, password 
                             FROM users
-                            WHERE type = 'man' AND isActive = true
-                                AND email = '${auth.email}'`
-    result = await execute(queryFromUsers)
+                            WHERE type = $type AND isActive = true
+                                AND email = $email;`
+    const paramsAuth = {
+        '$email': TypedValues.utf8(auth.email),
+        '$type': TypedValues.utf8(typeUser)
+    }
+    result = await execute(queryFromUsers, paramsAuth)
     if (result.status === SUCCESS && result.data.length > 0) {
         const user: User = {
             id: result.data[0].id,
@@ -30,11 +37,19 @@ export const login = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> 
         if (passwordCorrect) {
             const token = uuid()
             const created_at = (new Date()).toJSON()
-            const queryCreateToken = `$parse1 = DateTime::Parse("%Y-%m-%dT%H:%M:%SZ");
+            const queryCreateToken = `DECLARE $id AS Utf8;
+                                      DECLARE $userId AS Utf8;
+                                      DECLARE $createdAt as Utf8;
+                                      $parse1 = DateTime::Parse("%Y-%m-%dT%H:%M:%SZ");
                                       UPSERT INTO tokens (id, userId, created_at)
-                                      VALUES ('${token}', '${user.id}', 
-                                      DateTime::MakeDatetime($parse1('${created_at}')))`
-            result = await execute(queryCreateToken)
+                                      VALUES ($id, $userId, 
+                                      DateTime::MakeDatetime($parse1($createdAt)));`
+            const paramsToken = {
+                '$id': TypedValues.utf8(token),
+                '$userId': TypedValues.utf8(user.id),
+                '$createdAt': TypedValues.utf8(created_at)
+            }
+            result = await execute(queryCreateToken, paramsToken)
             if (result.status === SUCCESS) {
                 const resultToken: Token = {
                     id: token,

@@ -8,6 +8,7 @@ import {Donor, EventResult, Payment, Recipient} from "../../models/event-result"
 import {NOT_FOUND, SUCCESS} from "../../consts";
 import {Eater} from "../../models/eater";
 import {v4 as uuid} from "uuid"
+import {TypedValues} from "ydb-sdk";
 
 export const getResult = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> => {
     logger.info("Start getResult method.")
@@ -99,7 +100,8 @@ const getProductsData = async (event: YC.CloudFunctionsHttpEvent) => {
 
     let result: Result
     const id = event.params.id
-    const query = `SELECT p.id as id,
+    const query = ` DECLARE $eventId AS Utf8;
+                    SELECT p.id as id,
                             p.eventId as eventId,
                             p.title as title,
                             p.price as price,
@@ -110,8 +112,11 @@ const getProductsData = async (event: YC.CloudFunctionsHttpEvent) => {
                     FROM products p
                     CROSS JOIN users u
                     WHERE p.buyerId = u.id
-                        AND p.eventId = '${id}'`
-    result = await execute(query)
+                        AND p.eventId = $eventId;`
+    const paramsProducts = {
+        '$eventId': TypedValues.utf8(id)
+    }
+    result = await execute(query, paramsProducts)
     logger.info(`Result after select from products: ${JSON.stringify(result)}`)
     if (result.status === SUCCESS) {
         let products: Product[] = []
@@ -129,7 +134,8 @@ const getProductsData = async (event: YC.CloudFunctionsHttpEvent) => {
                 }
             }
 
-            const queryEater = `SELECT e.id as id,
+            const queryEater = `DECLARE $productId AS Utf8;
+                            SELECT e.id as id,
                                        e.productId as productId,
                                        e.number as number,
                                        e.userId as userId,
@@ -138,8 +144,11 @@ const getProductsData = async (event: YC.CloudFunctionsHttpEvent) => {
                             FROM eaters e
                             CROSS JOIN users u
                             WHERE e.userId = u.id
-                                AND productId = '${item.id}'`
-            const eaterResult = await execute(queryEater)
+                                AND productId = $productId;`
+            const paramsEaters = {
+                '$productId': TypedValues.utf8(item.id)
+            }
+            const eaterResult = await execute(queryEater, paramsEaters)
             const eaters: Eater[] = []
             eaterResult.data.forEach((e) => {
                 const eater: Eater = {
@@ -201,10 +210,14 @@ const saveResultToDB = async (eventId: string, eventResult: EventResult) => {
 
 const getResultFromDB = async (eventId: string) => {
     let result: Result
-    const query = `SELECT result
+    const query = ` DECLARE $eventId AS Utf8;
+                    SELECT result
                     FROM results
-                    WHERE eventId = '${eventId}'`
-    result = await execute(query)
+                    WHERE eventId = $eventId;`
+    const params = {
+        '$eventId': TypedValues.utf8(eventId)
+    }
+    result = await execute(query, params)
     if (result.status === SUCCESS && result.data.length > 0) {
         logger.info("Result from DB received successfully")
         result = {

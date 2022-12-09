@@ -1,30 +1,32 @@
 import {Result} from "../../models/result";
 import {YC} from "../../yc";
-import {execute} from "../../db";
+import {execute, logger} from "../../db";
+import {TypedValues} from "ydb-sdk";
 
 export const getEvents = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> => {
+    logger.info("Start getEvents method")
     let result: Result
     const status = event.params.status
     const userId = event.requestContext.authorizer.user.id
 
-    let query = `SELECT e.id as id, 
+    let query = ` DECLARE $userId AS Utf8;
+                  DECLARE $status AS Utf8;
+                  SELECT e.id as id, 
                         authorId, 
-                        evented_at, isPublic, reason, status, title
+                        evented_at, isPublic, reason, status, title, withCommonMoney
                   FROM events e
                   CROSS JOIN members m
-                  WHERE m.eventId = e.id AND m.userId = '${userId}'`
+                  WHERE m.eventId = e.id 
+                    AND m.userId = $userId
+                    AND e.status = $status;`
 
-    switch (status) {
-        case "active":
-            query = query + ` AND e.status = 'active'`
-            break
-        case "archive":
-            query = query + ` AND e.status = 'archive'`
-            break
-        default:
-            break
+    const params = {
+        '$userId': TypedValues.utf8(userId),
+        '$status': TypedValues.utf8(status)
     }
 
-    result = await execute(query)
+    result = await execute(query, params)
+
+    logger.info(`End getEvents method. Result: ${JSON.stringify(result)}`)
     return result
 }

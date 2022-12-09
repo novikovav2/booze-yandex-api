@@ -14,11 +14,12 @@ export const addEvent = async (event: YC.CloudFunctionsHttpEvent): Promise<Resul
     const user: User = event.requestContext.authorizer.user
 
     const query = `$parse1 = DateTime::Parse("%Y-%m-%dT%H:%M:%SZ");
-                    UPSERT INTO events (id, authorId, evented_at, isPublic, reason, status, title)
+                    INSERT INTO events (id, authorId, evented_at, isPublic, 
+                            reason, status, title, withCommonMoney)
                     VALUES ('${uuidEvent}', '${newEvent.authorId}', 
                     DateTime::MakeDatetime($parse1('${newEvent.evented_at}')) ,
                     ${newEvent.isPublic}, '${newEvent.reason}', '${newEvent.status}', 
-                    '${newEvent.title}')`
+                    '${newEvent.title}', ${newEvent.withCommonMoney})`
     result = await execute(query)
     if (result.status === SUCCESS) {
         const uuidMember = uuid()

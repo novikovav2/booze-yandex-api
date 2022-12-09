@@ -3,6 +3,7 @@ import {AuthResult} from "../../models/result";
 import {execute, logger} from "../../db";
 import {SUCCESS} from "../../consts";
 import {User} from "../../models/user";
+import {TypedValues} from "ydb-sdk";
 
 export const authorization = async (event: YC.CloudFunctionsHttpEvent): Promise<AuthResult> => {
     logger.info("Start authorization method")
@@ -14,13 +15,18 @@ export const authorization = async (event: YC.CloudFunctionsHttpEvent): Promise<
     if (authHeader) {
         const token = authHeader.split(' ')[1]
         if (token) {
-            const query = `SELECT u.id as id,
+            const query = ` DECLARE $token AS Utf8;
+                            SELECT u.id as id,
                                     u.username as username,
                                     u.type as type 
                             FROM tokens t
                             CROSS JOIN users u
-                            WHERE t.userId = u.id AND t.id = '${token}'`
-            const r = await execute(query)
+                            WHERE t.userId = u.id 
+                                AND t.id = $token;`
+            const params = {
+                '$token': TypedValues.utf8(token)
+            }
+            const r = await execute(query, params)
             if (r.status === SUCCESS && r.data.length > 0) {
                 const user: User = {
                     id: r.data[0].id,
