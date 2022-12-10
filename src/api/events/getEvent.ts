@@ -12,7 +12,7 @@ export const getEvent = async (event: YC.CloudFunctionsHttpEvent): Promise<Resul
     let eventResult: Event
     const id = event.params.id
     query = `DECLARE $id AS Utf8;
-                SELECT id, authorId, 
+                SELECT id,  
                     evented_at, 
                     isPublic, reason, status, title, withCommonMoney
                   FROM events
@@ -26,7 +26,6 @@ export const getEvent = async (event: YC.CloudFunctionsHttpEvent): Promise<Resul
             logger.info("Event found")
             eventResult = {
                 id: result.data[0].id,
-                authorId: result.data[0].authorid,
                 title: result.data[0].title,
                 isPublic: result.data[0].isPublic,
                 status: result.data[0].status,

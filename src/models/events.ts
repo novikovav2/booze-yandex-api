@@ -5,7 +5,6 @@ export interface EventNew {
     evented_at: string,
     isPublic: boolean,
     status: EVENT_STATUS,
-    authorId?: string,
     withCommonMoney: boolean
 }
 
