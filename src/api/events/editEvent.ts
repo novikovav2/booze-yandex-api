@@ -9,14 +9,14 @@ export const editEvent = async (event: YC.CloudFunctionsHttpEvent): Promise<Resu
     let result: Result
     const id = event.params.id
     const newEvent: EventNew = JSON.parse(event.body)
-    const query = `$parse1 = DateTime::Parse("%Y-%m-%dT%H:%M:%SZ");
-                    DECLARE $id AS Utf8;
+    const query = ` DECLARE $id AS Utf8;
                     DECLARE $title AS Utf8;
                     DECLARE $eventedAt AS Utf8;
                     DECLARE $isPublic AS Bool;
                     DECLARE $reason AS Utf8;
                     DECLARE $status AS Utf8;
                     DECLARE $withCommonMoney AS Bool;
+                    $parse1 = DateTime::Parse("%Y-%m-%dT%H:%M:%SZ");
                     UPSERT INTO events (id, title, evented_at, 
                         isPublic, reason, status, withCommonMoney )
                     VALUES ($id,  $title,
@@ -31,6 +31,7 @@ export const editEvent = async (event: YC.CloudFunctionsHttpEvent): Promise<Resu
         '$status': TypedValues.utf8(newEvent.status),
         '$withCommonMoney': TypedValues.bool(newEvent.withCommonMoney)
     }
+    logger.info(`PARAMS: ${JSON.stringify(params)}`)
     result = await execute(query, params)
 
     logger.info(`End editEvent method. Result: ${JSON.stringify(result)}`)
