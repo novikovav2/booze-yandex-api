@@ -9,6 +9,7 @@ import {NOT_FOUND, SUCCESS} from "../../consts";
 import {Eater} from "../../models/eater";
 import {v4 as uuid} from "uuid"
 import {TypedValues} from "ydb-sdk";
+import {clearResult} from "../shared/clearResult";
 
 export const getResult = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> => {
     logger.info("Start getResult method.")
@@ -199,13 +200,19 @@ const calculatePaid = (member: Member, products: Product[]) => {
 
 const saveResultToDB = async (eventId: string, eventResult: EventResult) => {
     const resultUuid = uuid()
-    const queryDeleteOldResult = `DELETE FROM results
-                                    WHERE eventId = '${eventId}'`
-    await execute(queryDeleteOldResult)
+    await clearResult(eventId)
 
-    const query = `INSERT into results (id, eventId, result)
-                    VALUES ('${resultUuid}', '${eventId}', '${JSON.stringify(eventResult)}')`
-    return await execute(query)
+    const query = ` DECLARE $id AS Utf8;
+                    DECLARE $eventId AS Utf8;
+                    DECLARE $result AS Utf8;
+                    INSERT into results (id, eventId, result)
+                    VALUES ($id, $eventId, $result);`
+    const params = {
+        '$id': TypedValues.utf8(resultUuid),
+        '$eventId': TypedValues.utf8(eventId),
+        '$result': TypedValues.utf8(JSON.stringify(eventResult))
+    }
+    return await execute(query, params)
 }
 
 const getResultFromDB = async (eventId: string) => {
