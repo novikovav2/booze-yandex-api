@@ -3,17 +3,26 @@ import {Result} from "../../models/result";
 import {execute, logger} from "../../db";
 import {Member} from "../../models/member";
 import {clearResult} from "../shared/clearResult";
+import {TypedValues} from "ydb-sdk";
 
 export const updateMember = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> => {
     logger.info("Start updateMember method")
     let result: Result
     const member: Member = JSON.parse(event.body)
 
-    const query = `UPDATE users
-                    SET username = '${member.user.username}'
-                    WHERE id = '${member.user.id}'
-                        AND type = 'bot'`
-    result = await execute(query)
+    const query = ` DECLARE $username AS Utf8;
+                    DECLARE $userId AS Utf8;
+                    DECLARE $type AS Utf8;
+                    UPDATE users
+                    SET username = $username
+                    WHERE id = $userId
+                        AND type = $type;`
+    const params = {
+        '$username': TypedValues.utf8(member.user.username),
+        '$userId': TypedValues.utf8(member.user.id),
+        '$type': TypedValues.utf8('bot'),
+    }
+    result = await execute(query, params)
 
     await clearResult(member.eventId)
     logger.info(`End updateMember method. Result: ${JSON.stringify(result)}`)
