@@ -3,6 +3,7 @@ import {YC} from "../../yc";
 import {BAD_REQUEST, SUCCESS} from "../../consts";
 import {execute, logger} from "../../db";
 import {Member} from "../../models/member";
+import {TypedValues} from "ydb-sdk";
 
 export const getMembers = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> => {
     logger.info("Start getMembers method")
@@ -10,17 +11,21 @@ export const getMembers = async (event: YC.CloudFunctionsHttpEvent): Promise<Res
     const id = event.params.id
 
     if (id) {
-        const query = `select m.id as id,
+        const query = ` DECLARE $eventId AS Utf8;
+                        select m.id as id,
                             m.eventId as eventId,
                             u.id as userId,
                             u.username as username,
                             u.type as type
-                    from members m
-                    cross join users u
-                    where m.userId = u.id
-                        and m.eventId = '${id}'
-                    order by username`
-        result = await execute(query)
+                        from members m
+                        cross join users u
+                        where m.userId = u.id
+                            and m.eventId = $eventId
+                        order by username;`
+        const params = {
+            '$eventId': TypedValues.utf8(id)
+        }
+        result = await execute(query, params)
         if (result.status === SUCCESS) {
             logger.info("Data received successfully")
             logger.info(`Data: ${JSON.stringify(result.data)}`)
