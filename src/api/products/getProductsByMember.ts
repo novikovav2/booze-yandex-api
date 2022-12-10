@@ -3,6 +3,7 @@ import {YC} from "../../yc";
 import {execute, logger} from "../../db";
 import {SUCCESS} from "../../consts";
 import {MemberProduct} from "../../models/product";
+import {TypedValues} from "ydb-sdk";
 
 export const getProductsByMember = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> => {
     logger.info("Start getProductsByMember method")
@@ -10,15 +11,21 @@ export const getProductsByMember = async (event: YC.CloudFunctionsHttpEvent): Pr
     const memberId: string = event.params.id
     let products: MemberProduct[] = []
 
-    const queryGetMemberInfo = `SELECT eventId, userId
+    const queryGetMemberInfo = `DECLARE $memberId AS Utf8;
+                                SELECT eventId, userId
                                 FROM members
-                                WHERE id = '${memberId}'`
-    result = await execute(queryGetMemberInfo)
+                                WHERE id = $memberId;`
+    const paramsMember = {
+        '$memberId': TypedValues.utf8(memberId)
+    }
+    result = await execute(queryGetMemberInfo, paramsMember)
     if (result.status === SUCCESS) {
         const eventId = result.data[0].eventId
         const userId = result.data[0].userId
         if (eventId && userId) {
-            const queryEaten = `SELECT DISTINCT p.id as id,
+            const queryEaten = `DECLARE $eventId AS Utf8;
+                                DECLARE $userId AS Utf8;
+                            SELECT DISTINCT p.id as id,
                             p.eventId as eventId,
                             p.title as title,
                             p.price as price,
@@ -28,18 +35,25 @@ export const getProductsByMember = async (event: YC.CloudFunctionsHttpEvent): Pr
                             u.type as type,
                     FROM products p
                     LEFT JOIN users u ON p.buyerId = u.id 
-                    WHERE p.eventId = '${eventId}'
+                    WHERE p.eventId = $eventId
                         AND p.id IN (select productId
                                         from eaters
-                                        where userId = '${userId}')
-                    order by title`
-            result = await execute(queryEaten)
+                                        where userId = $userId)
+                    order by title;`
+            const params = {
+                '$eventId': TypedValues.utf8(eventId),
+                '$userId': TypedValues.utf8(userId)
+            }
+            result = await execute(queryEaten, params)
             if (result.status === SUCCESS) {
                 const parsedProducts = parseProducts(result.data, true)
                 products = [...products, ...parsedProducts]
             }
 
-            const queryNonEaten = `SELECT DISTINCT p.id as id,
+            const queryNonEaten = `
+                    DECLARE $eventId AS Utf8;
+                    DECLARE $userId AS Utf8;
+                    SELECT DISTINCT p.id as id,
                             p.eventId as eventId,
                             p.title as title,
                             p.price as price,
@@ -49,12 +63,12 @@ export const getProductsByMember = async (event: YC.CloudFunctionsHttpEvent): Pr
                             u.type as type,
                     FROM products p
                     LEFT JOIN users u ON p.buyerId = u.id 
-                    WHERE p.eventId = '${eventId}'
+                    WHERE p.eventId = $eventId
                         AND p.id NOT IN (select productId
                                         from eaters
-                                        where userId = '${userId}')
-                    order by title`
-            result = await execute(queryNonEaten)
+                                        where userId = $userId)
+                    order by title;`
+            result = await execute(queryNonEaten, params)
             if (result.status === SUCCESS) {
                 const parsedProducts = parseProducts(result.data, false)
                 products = [...products, ...parsedProducts]
