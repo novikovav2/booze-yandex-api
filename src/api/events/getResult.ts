@@ -204,13 +204,13 @@ const saveResultToDB = async (eventId: string, eventResult: EventResult) => {
 
     const query = ` DECLARE $id AS Utf8;
                     DECLARE $eventId AS Utf8;
-                    DECLARE $result AS Utf8;
+                    DECLARE $result AS Json;
                     INSERT into results (id, eventId, result)
                     VALUES ($id, $eventId, $result);`
     const params = {
         '$id': TypedValues.utf8(resultUuid),
         '$eventId': TypedValues.utf8(eventId),
-        '$result': TypedValues.utf8(JSON.stringify(eventResult))
+        '$result': TypedValues.json(JSON.stringify(eventResult))
     }
     return await execute(query, params)
 }
