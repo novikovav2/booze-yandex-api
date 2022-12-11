@@ -19,7 +19,7 @@ export const authorization = async (event: YC.CloudFunctionsHttpEvent): Promise<
                             SELECT u.id as id,
                                     u.username as username,
                                     u.type as type 
-                            FROM tokens t
+                            FROM tokens VIEW USER_ID_IDX as t
                             CROSS JOIN users u
                             WHERE t.userId = u.id 
                                 AND t.id = $token;`
