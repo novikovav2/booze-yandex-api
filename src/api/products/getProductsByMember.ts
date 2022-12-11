@@ -33,7 +33,7 @@ export const getProductsByMember = async (event: YC.CloudFunctionsHttpEvent): Pr
                             u.id as userId,
                             u.username as username,
                             u.type as type,
-                    FROM products p
+                    FROM products VIEW EVENT_ID_IDX AS p
                     LEFT JOIN users u ON p.buyerId = u.id 
                     WHERE p.eventId = $eventId
                         AND p.id IN (select productId
@@ -61,7 +61,7 @@ export const getProductsByMember = async (event: YC.CloudFunctionsHttpEvent): Pr
                             u.id as userId,
                             u.username as username,
                             u.type as type,
-                    FROM products p
+                    FROM products VIEW EVENT_ID_IDX AS p
                     LEFT JOIN users u ON p.buyerId = u.id 
                     WHERE p.eventId = $eventId
                         AND p.id NOT IN (select productId
