@@ -12,7 +12,7 @@ export const resetPassword = async (event: YC.CloudFunctionsHttpEvent): Promise<
     const data: ResetPassword = JSON.parse(event.body)
     const query = ` DECLARE $email AS Utf8;
                     SELECT id, username
-                    FROM users
+                    FROM users VIEW EMAIL_IDX
                     WHERE email = $email;`
     const params = {
         '$email': TypedValues.utf8(data.email)
