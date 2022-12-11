@@ -110,7 +110,7 @@ const getProductsData = async (event: YC.CloudFunctionsHttpEvent) => {
                             u.id as userId,
                             u.username as username,
                             u.type as type
-                    FROM products p
+                    FROM products VIEW EVENT_ID_IDX AS p
                     CROSS JOIN users u
                     WHERE p.buyerId = u.id
                         AND p.eventId = $eventId;`
@@ -142,7 +142,7 @@ const getProductsData = async (event: YC.CloudFunctionsHttpEvent) => {
                                        e.userId as userId,
                                        u.username as username,
                                        u.type as type
-                            FROM eaters e
+                            FROM eaters VIEW PRODUCT_ID_IDX AS e
                             CROSS JOIN users u
                             WHERE e.userId = u.id
                                 AND productId = $productId;`
@@ -219,7 +219,7 @@ const getResultFromDB = async (eventId: string) => {
     let result: Result
     const query = ` DECLARE $eventId AS Utf8;
                     SELECT result
-                    FROM results
+                    FROM results VIEW EVENT_ID_IDX
                     WHERE eventId = $eventId;`
     const params = {
         '$eventId': TypedValues.utf8(eventId)
