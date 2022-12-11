@@ -29,7 +29,9 @@ export const deleteProduct = async (event: YC.CloudFunctionsHttpEvent): Promise<
     result = await execute(queryDeleteProduct, paramsProduct)
     if (result.status === SUCCESS) {
         const queryDeleteEaters = ` DECLARE $productId AS Utf8;
-                                    DELETE FROM eaters 
+                                    DELETE FROM eaters ON
+                                    SELECT id
+                                    FROM eaters VIEW PRODUCT_ID_IDX
                                     WHERE productId = $productId;`
         await execute(queryDeleteEaters, paramsProduct)
         await clearResult(eventId)

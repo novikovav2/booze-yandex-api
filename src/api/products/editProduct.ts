@@ -34,7 +34,9 @@ export const editProduct = async (event: YC.CloudFunctionsHttpEvent): Promise<Re
     result = await execute(query, paramsProduct)
     if (result.status === SUCCESS) {
         const queryCleanEaters = `DECLARE $productId AS Utf8;
-                                  DELETE FROM eaters
+                                  DELETE FROM eaters ON
+                                  SELECT id
+                                  FROM eaters VIEW PRODUCT_ID_IDX
                                   WHERE productId = $productId;`
         const paramsProduct = {
             '$productId': TypedValues.utf8(id)
