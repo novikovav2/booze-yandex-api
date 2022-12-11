@@ -3,7 +3,9 @@ import {TypedValues} from "ydb-sdk";
 
 export const clearResult = async (eventId: string) => {
     const query = `DECLARE $eventId AS Utf;
-                   DELETE FROM results
+                   DELETE FROM results ON
+                    SELECT id
+                    FROM results VIEW EVENT_ID_IDX
                    WHERE eventId = $eventId;`
     const params = {
         '$eventId': TypedValues.utf8(eventId)

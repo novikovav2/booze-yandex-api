@@ -14,7 +14,7 @@ export const addUser = async (event: YC.CloudFunctionsHttpEvent): Promise<Result
     const auth: Auth = JSON.parse(event.body)
     const queryCheckExistingUser = `DECLARE $email AS Utf8;
                                     SELECT id 
-                                     FROM users
+                                     FROM users VIEW EMAIL_IDX
                                      WHERE email = $email;`
     const paramsUser = {
         '$email': TypedValues.utf8(auth.email)
@@ -38,7 +38,7 @@ export const addUser = async (event: YC.CloudFunctionsHttpEvent): Promise<Result
                         DECLARE $username as Utf8;
                         DECLARE $type as Utf8;
                         DECLARE $isActive as Bool;
-                        UPSERT INTO users (id, email, password, username, 
+                        INSERT INTO users (id, email, password, username, 
                             type, isActive)
                         VALUES ($id, $email, $password, $username, $type, 
                                 $isActive);`
@@ -57,7 +57,7 @@ export const addUser = async (event: YC.CloudFunctionsHttpEvent): Promise<Result
             const uuidConfirm = uuid()
             const queryConfirm = `DECLARE $id AS Utf8;
                                   DECLARE $userId AS Utf8;
-                                  UPSERT INTO confirmations (id, userId, created_at)
+                                  INSERT INTO confirmations (id, userId, created_at)
                                   VALUES ($id, $userId, CurrentUtcDate());`
             const paramsConfirm = {
                 '$id': TypedValues.utf8(uuidConfirm),
