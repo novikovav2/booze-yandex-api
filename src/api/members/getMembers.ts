@@ -12,16 +12,16 @@ export const getMembers = async (event: YC.CloudFunctionsHttpEvent): Promise<Res
 
     if (id) {
         const query = ` DECLARE $eventId AS Utf8;
-                        select m.id as id,
+                        SELECT m.id as id,
                             m.eventId as eventId,
                             u.id as userId,
                             u.username as username,
                             u.type as type
-                        from members m
-                        cross join users u
-                        where m.userId = u.id
+                        FROM members VIEW EVENT_ID_IDX AS m
+                        CROSS JOIN users u
+                        WHERE m.userId = u.id
                             and m.eventId = $eventId
-                        order by username;`
+                        ORDER BY username;`
         const params = {
             '$eventId': TypedValues.utf8(id)
         }
