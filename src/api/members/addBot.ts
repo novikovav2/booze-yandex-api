@@ -17,7 +17,7 @@ export const addBot = async (event: YC.CloudFunctionsHttpEvent): Promise<Result>
     const queryCreateBot = `DECLARE $userId AS Utf8;
                             DECLARE $type AS UTF8;
                             DECLARE $username AS UTF8; 
-                            UPSERT INTO users (id, type, username)
+                            INSERT INTO users (id, type, username)
                            VALUES ($userId, $type, $username);`
     const paramsUser = {
         '$userId': TypedValues.utf8(uuidBot),
@@ -31,7 +31,7 @@ export const addBot = async (event: YC.CloudFunctionsHttpEvent): Promise<Result>
         const queryAddBotToEvent = `DECLARE $memberId AS Utf8;
                                     DECLARE $eventId AS Utf8;
                                     DECLARE $userId AS Utf8;
-                                    UPSERT INTO members (id, eventId, userId)
+                                    INSERT INTO members (id, eventId, userId)
                                     VALUES ($memberId, $eventId, $userId);`
         const paramsMember = {
             '$memberId': TypedValues.utf8(uuidMember),

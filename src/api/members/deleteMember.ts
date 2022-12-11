@@ -37,7 +37,7 @@ export const deleteMember = async (event: YC.CloudFunctionsHttpEvent): Promise<R
         const queryProducts = ` DECLARE $eventId AS Utf8;
                                 DECLARE $userId AS Utf8;
                                 SELECT id
-                                FROM products
+                                FROM products VIEW EVENT_ID_IDX
                                 WHERE eventId = $eventId
                                     AND buyerId = $userId;`
 
@@ -56,10 +56,13 @@ export const deleteMember = async (event: YC.CloudFunctionsHttpEvent): Promise<R
         // Удаляем участника как едока
         const queryEaters = `   DECLARE $eventId AS Utf8;
                                 DECLARE $userId AS Utf8;
-                                DELETE FROM eaters
+                                DELETE FROM eaters ON
+                                SELECT id
+                                FROM eaters VIEW PRODUCT_ID_IDX
                                 WHERE userId = $userId
-                                    AND productId IN (select id from products
-                                                        where eventId = $eventId);`
+                                    AND productId IN (select id 
+                                                    from products VIEW EVENT_ID_IDX
+                                                    where eventId = $eventId);`
         result = await execute(queryEaters, params)
         // Удаляем участника окончательно
         if (result.status === SUCCESS) {
