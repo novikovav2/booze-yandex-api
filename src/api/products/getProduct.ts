@@ -49,7 +49,7 @@ export const getProduct = async (event: YC.CloudFunctionsHttpEvent): Promise<Res
                                        e.userId as userId, 
                                        u.username as username,
                                        u.type as type
-                            FROM eaters e
+                            FROM eaters VIEW PRODUCT_ID_IDX AS e
                             CROSS JOIN users u
                             WHERE e.userId = u.id
                                 AND productId = $productId
