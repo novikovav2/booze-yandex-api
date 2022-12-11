@@ -27,9 +27,11 @@ export const updateProductsByMember = async (event: YC.CloudFunctionsHttpEvent):
         for (const product of products) {
             const queryCleanEater = `   DECLARE $productId AS Utf8;
                                         DECLARE $userId AS Utf8;
-                                        DELETE FROM eaters
+                                        DELETE FROM eaters ON
+                                        SELECT id
+                                        FROM eaters VIEW PRODUCT_ID_IDX
                                         WHERE productId = $productId
-                                        AND userId = $userId;`
+                                            AND userId = $userId;`
             const paramEaters = {
                 '$productId': TypedValues.utf8(product.id),
                 '$userId': TypedValues.utf8(userId)
