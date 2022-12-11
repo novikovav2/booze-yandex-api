@@ -17,7 +17,7 @@ export const login = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> 
     const queryFromUsers = `DECLARE $email AS Utf8;
                             DECLARE $type AS Utf8;
                             SELECT id, password 
-                            FROM users
+                            FROM users VIEW EMAIL_IDX
                             WHERE type = $type AND isActive = true
                                 AND email = $email;`
     const paramsAuth = {
@@ -41,7 +41,7 @@ export const login = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> 
                                       DECLARE $userId AS Utf8;
                                       DECLARE $createdAt as Utf8;
                                       $parse1 = DateTime::Parse("%Y-%m-%dT%H:%M:%SZ");
-                                      UPSERT INTO tokens (id, userId, created_at)
+                                      INSERT INTO tokens (id, userId, created_at)
                                       VALUES ($id, $userId, 
                                       DateTime::MakeDatetime($parse1($createdAt)));`
             const paramsToken = {
