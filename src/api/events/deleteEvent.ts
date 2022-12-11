@@ -18,12 +18,16 @@ export const deleteEvent = async (event: YC.CloudFunctionsHttpEvent): Promise<Re
     result = await execute(queryDeleteEvent, params)
     if (result.status === SUCCESS) {
         const queryDeleteFromMembers = `DECLARE $eventId AS Utf8;
-                                        DELETE FROM members 
-                                        WHERE eventID = $eventId;`
+                                        DELETE FROM members ON
+                                        SELECT id
+                                        FROM members VIEW EVENT_ID_IDX 
+                                        WHERE eventId = $eventId;`
         await execute(queryDeleteFromMembers, params)
         const queryDeleteFromProducts = `DECLARE $eventId AS Utf8;
-                                         DELETE FROM products 
-                                         WHERE eventID = $eventId;`
+                                         DELETE FROM products ON
+                                         SELECT id
+                                         FROM products VIEW EVENT_ID_IDX
+                                         WHERE eventId = $eventId;`
         await execute(queryDeleteFromProducts, params)
     }
 

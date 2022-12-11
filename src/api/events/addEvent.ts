@@ -41,7 +41,7 @@ export const addEvent = async (event: YC.CloudFunctionsHttpEvent): Promise<Resul
         const queryAddMember = `DECLARE $id AS Utf8;
                                 DECLARE $eventId AS Utf8;
                                 DECLARE $userId AS Utf8;
-                                UPSERT INTO members (id, eventId, userId)
+                                INSERT INTO members (id, eventId, userId)
                                 VALUES ($id, $eventId, $userId);`
         const paramsMember = {
             '$id': TypedValues.utf8(uuidMember),
