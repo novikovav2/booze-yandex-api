@@ -12,11 +12,11 @@ export const getEvent = async (event: YC.CloudFunctionsHttpEvent): Promise<Resul
     let eventResult: Event
     const id = event.params.id
     query = `DECLARE $id AS Utf8;
-                SELECT id,  
-                    evented_at, 
+             SELECT id,  
+                   evented_at, 
                     isPublic, reason, status, title, withCommonMoney
-                  FROM events
-                  WHERE id = $id;`
+             FROM events
+             WHERE id = $id;`
     const params = {
         '$id': TypedValues.utf8(id)
     }
@@ -53,7 +53,7 @@ export const getEvent = async (event: YC.CloudFunctionsHttpEvent): Promise<Resul
                         logger.info("Token found")
                         const queryUser = ` DECLARE $tokenId AS Utf8;
                                             SELECT u.id as id
-                                            FROM tokens t
+                                            FROM tokens VIEW USER_ID_IDX as t
                                             CROSS JOIN users u
                                             WHERE t.userId = u.id 
                                                 AND t.id = $tokenId;`
@@ -67,7 +67,7 @@ export const getEvent = async (event: YC.CloudFunctionsHttpEvent): Promise<Resul
                             const queryMember = ` DECLARE $userId AS Utf8;
                                                   DECLARE $eventId AS UTF8;
                                                   SELECT id, 
-                                                  FROM members
+                                                  FROM members VIEW EVENT_ID_IDX
                                                   WHERE userId = $userId 
                                                   AND eventId = $eventId;`
                             const paramsMember = {
