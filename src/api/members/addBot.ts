@@ -3,7 +3,7 @@ import {Result} from "../../models/result";
 import {NewMember} from "../../models/member";
 import {v4 as uuid} from "uuid"
 import {execute, logger} from "../../db";
-import {SUCCESS} from "../../consts";
+import {SUCCESS, USER_BOT} from "../../consts";
 import {clearResult} from "../shared/clearResult";
 import {TypedValues} from "ydb-sdk";
 
@@ -21,7 +21,7 @@ export const addBot = async (event: YC.CloudFunctionsHttpEvent): Promise<Result>
                            VALUES ($userId, $type, $username);`
     const paramsUser = {
         '$userId': TypedValues.utf8(uuidBot),
-        '$type': TypedValues.utf8('bot'),
+        '$type': TypedValues.utf8(USER_BOT),
         '$username': TypedValues.utf8(member.username)
     }
     result = await execute(queryCreateBot, paramsUser)

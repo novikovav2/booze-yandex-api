@@ -4,6 +4,7 @@ import {execute, logger} from "../../db";
 import {Member} from "../../models/member";
 import {clearResult} from "../shared/clearResult";
 import {TypedValues} from "ydb-sdk";
+import {USER_BOT} from "../../consts";
 
 export const updateMember = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> => {
     logger.info("Start updateMember method")
@@ -20,7 +21,7 @@ export const updateMember = async (event: YC.CloudFunctionsHttpEvent): Promise<R
     const params = {
         '$username': TypedValues.utf8(member.user.username),
         '$userId': TypedValues.utf8(member.user.id),
-        '$type': TypedValues.utf8('bot'),
+        '$type': TypedValues.utf8(USER_BOT),
     }
     result = await execute(query, params)
 

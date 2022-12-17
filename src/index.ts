@@ -30,6 +30,7 @@ import {getMember} from "./api/members/getMember";
 import {updateMember} from "./api/members/updateMember";
 import {getProductsByMember} from "./api/products/getProductsByMember";
 import {updateProductsByMember} from "./api/products/updateProductsByMember";
+import {updateMembers} from "./api/members/updateMembers";
 
 // context: YC.CloudFunctionsHttpContext
 export async function handler(event: YC.CloudFunctionsHttpEvent) {
@@ -76,6 +77,9 @@ export async function handler(event: YC.CloudFunctionsHttpEvent) {
                 break
             case "update-member":
                 result = await updateMember(event)
+                break
+            case "update-members":
+                result = await updateMembers(event)
                 break
             case "get-event-products":
                 result = await getProducts(event)

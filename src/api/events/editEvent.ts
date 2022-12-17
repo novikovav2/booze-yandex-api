@@ -3,6 +3,8 @@ import {Result} from "../../models/result";
 import {execute, logger} from "../../db";
 import {EventNew} from "../../models/events";
 import {TypedValues} from "ydb-sdk";
+import {addCommonFund, removeCommonFund} from "./commonMoney";
+import {SUCCESS} from "../../consts";
 
 export const editEvent = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> => {
     logger.info("Start editEvent method")
@@ -31,8 +33,11 @@ export const editEvent = async (event: YC.CloudFunctionsHttpEvent): Promise<Resu
         '$status': TypedValues.utf8(newEvent.status),
         '$withCommonMoney': TypedValues.bool(newEvent.withCommonMoney)
     }
-    logger.info(`PARAMS: ${JSON.stringify(params)}`)
     result = await execute(query, params)
+
+    if (result.status === SUCCESS) {
+        result = newEvent.withCommonMoney ? await addCommonFund(id) : await removeCommonFund(id)
+    }
 
     logger.info(`End editEvent method. Result: ${JSON.stringify(result)}`)
     return result

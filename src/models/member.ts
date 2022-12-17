@@ -8,5 +8,6 @@ export interface NewMember {
 export interface Member {
     id: string,
     eventId: string,
-    user: User
+    user: User,
+    money?: number
 }

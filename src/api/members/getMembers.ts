@@ -14,6 +14,7 @@ export const getMembers = async (event: YC.CloudFunctionsHttpEvent): Promise<Res
         const query = ` DECLARE $eventId AS Utf8;
                         SELECT m.id as id,
                             m.eventId as eventId,
+                            m.money as money,
                             u.id as userId,
                             u.username as username,
                             u.type as type
@@ -53,6 +54,7 @@ const parseMembers = (data: any[]) => {
         const member: Member = {
             id: item.id,
             eventId: item.eventId,
+            money: item.money,
             user: {
                 id: item.userId,
                 username: item.username,
