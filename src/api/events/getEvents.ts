@@ -18,7 +18,8 @@ export const getEvents = async (event: YC.CloudFunctionsHttpEvent): Promise<Resu
                   CROSS JOIN members m
                   WHERE m.eventId = e.id 
                     AND m.userId = $userId
-                    AND e.status = $status;`
+                    AND e.status = $status
+                  order by evented_at desc;`
 
     const params = {
         '$userId': TypedValues.utf8(userId),

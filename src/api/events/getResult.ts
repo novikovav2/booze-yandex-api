@@ -35,7 +35,8 @@ export const getResult = async (event: YC.CloudFunctionsHttpEvent): Promise<Resu
                 recipients.push({
                     user: member.user,
                     currentPaid: paid - ate,
-                    totalPaid: paid
+                    totalPaid: paid,
+                    totalAte: ate
                 })
             } else {
                 const donor: Donor = {

@@ -15,7 +15,8 @@ export interface Donor {
 export interface Recipient {
     user: User,
     totalPaid?: number,
-    currentPaid?: number
+    currentPaid?: number,
+    totalAte: number
 }
 
 export interface EventResult {
