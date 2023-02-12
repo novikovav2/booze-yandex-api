@@ -3,6 +3,7 @@ import {execute, logger} from "../../db";
 import {TypedValues} from "ydb-sdk";
 import {BAD_REQUEST, SUCCESS, USER_BOT} from "../../consts";
 import {clearResult} from "./clearResult";
+import {ERR_MEMBER_BUY_PRODUCTS} from "../../models/errors";
 
 export const removeMember = async (memberId: string): Promise<Result> => {
     logger.info("Start removeMember method")
@@ -38,8 +39,8 @@ export const removeMember = async (memberId: string): Promise<Result> => {
         result = await execute(queryProducts, params)
         if (result.status === SUCCESS && result.data.length > 0) {
             result = {
-                 status: BAD_REQUEST,
-                 data: {message: "Member bought products"}
+                status: BAD_REQUEST,
+                data: ERR_MEMBER_BUY_PRODUCTS
             }
         } else {
             logger.info("Member did not buy products")

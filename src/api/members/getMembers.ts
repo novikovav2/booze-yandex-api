@@ -4,6 +4,7 @@ import {BAD_REQUEST, SUCCESS} from "../../consts";
 import {execute, logger} from "../../db";
 import {Member} from "../../models/member";
 import {TypedValues} from "ydb-sdk";
+import {ERR_ID_REQUIRED} from "../../models/errors";
 
 export const getMembers = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> => {
     logger.info("Start getMembers method")
@@ -39,9 +40,7 @@ export const getMembers = async (event: YC.CloudFunctionsHttpEvent): Promise<Res
     } else {
         result = {
             status: BAD_REQUEST,
-            data: {
-                error: 'ID required'
-            }
+            data: ERR_ID_REQUIRED
         }
     }
     logger.info(`End getMembers method. Result: ${JSON.stringify(result)}`)

@@ -1,12 +1,13 @@
 import {YC} from "../../yc";
 import {Result} from "../../models/result";
 import {execute, logger} from "../../db";
-import {BAD_REQUEST, MSG_INCORRECT_USER_OR_PASSWORD, MSG_TOKEN_NOT_CREATED, SUCCESS} from "../../consts";
+import {BAD_REQUEST, SUCCESS, UNPROCESSABLE_ENTITY} from "../../consts";
 import {v4 as uuid} from "uuid"
 import {Auth, Token} from "../../models/auth";
 import {User, USER_TYPE} from "../../models/user";
 import {compare} from "bcrypt";
 import {TypedValues} from "ydb-sdk";
+import {ERR_INCORRECT_USER_OR_PASSWORD, ERR_TOKEN_NOT_CREATED} from "../../models/errors";
 
 export const login = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> => {
     logger.info("Start login method")
@@ -63,21 +64,21 @@ export const login = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> 
                 }
             } else {
                 result = {
-                    status: BAD_REQUEST,
-                    data: { msg: MSG_TOKEN_NOT_CREATED }
+                    status: UNPROCESSABLE_ENTITY,
+                    data: ERR_TOKEN_NOT_CREATED
                 }
             }
 
         } else {
             result = {
                 status: BAD_REQUEST,
-                data: { msg: MSG_INCORRECT_USER_OR_PASSWORD }
+                data: ERR_INCORRECT_USER_OR_PASSWORD
             }
         }
     } else if (result.status === SUCCESS && result.data.length === 0) {
         result = {
             status: BAD_REQUEST,
-            data: { msg: MSG_INCORRECT_USER_OR_PASSWORD }
+            data: ERR_INCORRECT_USER_OR_PASSWORD
         }
     }
 

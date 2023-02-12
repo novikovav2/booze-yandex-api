@@ -6,6 +6,7 @@ import {v4 as uuid} from "uuid"
 import {User} from "../../models/user";
 import {clearResult} from "../shared/clearResult";
 import {TypedValues} from "ydb-sdk";
+import {ERR_NEW_MEMBER_PAYLOAD} from "../../models/errors";
 
 export const joinMember = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> => {
     logger.info("Start joinMember method")
@@ -31,7 +32,7 @@ export const joinMember = async (event: YC.CloudFunctionsHttpEvent): Promise<Res
     } else {
         result = {
             status: BAD_REQUEST,
-            data: { message: "Require new member payload" }
+            data: ERR_NEW_MEMBER_PAYLOAD
         }
     }
 

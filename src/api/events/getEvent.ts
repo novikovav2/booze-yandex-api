@@ -4,6 +4,7 @@ import {execute, logger} from "../../db";
 import {NOT_FOUND, SUCCESS, UNAUTHORIZED} from "../../consts";
 import {Event} from "../../models/events"
 import {TypedValues} from "ydb-sdk";
+import {ERR_EVENT_NOT_FOUND, ERR_NOT_AUTHORIZED, ERR_YOU_NOT_A_MEMBER} from "../../models/errors";
 
 export const getEvent = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> => {
     logger.info("Start getEvent method")
@@ -43,7 +44,7 @@ export const getEvent = async (event: YC.CloudFunctionsHttpEvent): Promise<Resul
                 logger.info("Event is not public")
                 result = {
                     status: UNAUTHORIZED,
-                    data: {message: 'You are not authorized to view event'}
+                    data: ERR_NOT_AUTHORIZED
                 }
                 const authHeader = event.headers.authorization || event.headers.Authorization
                 if (authHeader) {
@@ -87,7 +88,7 @@ export const getEvent = async (event: YC.CloudFunctionsHttpEvent): Promise<Resul
                                 logger.info("user are not a member of event")
                                 result = {
                                     status: UNAUTHORIZED,
-                                    data: {message: 'You are not a member'}
+                                    data: ERR_YOU_NOT_A_MEMBER
                                 }
                             }
                         }
@@ -98,7 +99,7 @@ export const getEvent = async (event: YC.CloudFunctionsHttpEvent): Promise<Resul
             logger.info("Event not found")
             result = {
                 status: NOT_FOUND,
-                data: {message: 'Event not found'}
+                data: ERR_EVENT_NOT_FOUND
             }
         }
 

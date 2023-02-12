@@ -4,9 +4,10 @@ import {execute, logger} from "../../db";
 import {Auth} from "../../models/auth";
 import {hash} from "bcrypt";
 import {v4 as uuid} from "uuid"
-import {BAD_REQUEST, CONFIRMATION_URL, SBJ_REGISTRATION, SUCCESS} from "../../consts";
+import {CONFIRMATION_URL, SBJ_REGISTRATION, SUCCESS, UNPROCESSABLE_ENTITY} from "../../consts";
 import {mail} from "../../mail";
 import {TypedValues} from "ydb-sdk";
+import {ERR_USER_EXIST} from "../../models/errors";
 
 export const addUser = async (event: YC.CloudFunctionsHttpEvent): Promise<Result> => {
     logger.info("Start addUser method")
@@ -23,10 +24,8 @@ export const addUser = async (event: YC.CloudFunctionsHttpEvent): Promise<Result
     if (result.status === SUCCESS && result.data.length > 0) {
         logger.info("User exist")
         result = {
-            status: BAD_REQUEST,
-            data: {
-                msg: 'User exist'
-            }
+            status: UNPROCESSABLE_ENTITY,
+            data: ERR_USER_EXIST
         }
     } else if (result.status === SUCCESS && result.data.length === 0) {
         logger.info("User not exist")
